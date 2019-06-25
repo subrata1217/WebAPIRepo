@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Repository
 {
-    public abstract class RepositoryBase<T> : IRepositoryBase<T> where T: class
+    public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
         protected RepositoryContext RepositoryContext { get; set; }
 
@@ -29,6 +30,11 @@ namespace Repository
         public void Delete(T entity)
         {
             this.RepositoryContext.Set<T>().Remove(entity);
+        }
+
+        public async Task SaveAsync()
+        {
+            await this.RepositoryContext.SaveChangesAsync();
         }
 
         public IQueryable<T> FindAll()

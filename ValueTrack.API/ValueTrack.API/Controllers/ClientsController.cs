@@ -4,6 +4,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ValueTrack.API.Controllers
 {
@@ -21,11 +22,11 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllClients()
+        public async Task<IActionResult> GetAllClients()
         {
             try
             {
-                var clients = _repoWrapper.Client.GetAllClients();
+                var clients = await _repoWrapper.Client.GetAllClientsAsync();
                 _logger.LogInfo($"Returned all clients from the database.");
 
                 return Ok(clients);
@@ -38,11 +39,11 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpGet("{id}", Name = "ClientById")]
-        public IActionResult GetClientById(Guid id)
+        public async Task<IActionResult> GetClientById(Guid id)
         {
             try
             {
-                var client = _repoWrapper.Client.GetClientById(id);
+                var client = await _repoWrapper.Client.GetClientByIdAsync(id);
 
                 if (client.IsEmptyObject())
                 {
@@ -63,11 +64,11 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpGet("{id}/details")]
-        public IActionResult GetClientWithDetails(Guid id)
+        public async Task<IActionResult> GetClientWithDetails(Guid id)
         {
             try
             {
-                var client = _repoWrapper.Client.GetClientWithDetails(id);
+                var client = await _repoWrapper.Client.GetClientWithDetailsAsync(id);
 
                 if (client.IsEmptyObject())
                 {
@@ -88,7 +89,7 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateClient([FromBody]Client client)
+        public async Task<IActionResult> CreateClient([FromBody]Client client)
         {
             try
             {
@@ -104,8 +105,7 @@ namespace ValueTrack.API.Controllers
                     return BadRequest("Invalid Client object");
                 }
 
-                _repoWrapper.Client.CreateClient(client);
-                _repoWrapper.Save();
+                await _repoWrapper.Client.CreateClientAsyc(client);
 
                 return CreatedAtRoute("ClientById", new { client.Id }, client);
             }
@@ -117,7 +117,7 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateClient(Guid id, [FromBody]Client client)
+        public async Task<IActionResult> UpdateClient(Guid id, [FromBody]Client client)
         {
             try
             {
@@ -133,15 +133,14 @@ namespace ValueTrack.API.Controllers
                     return BadRequest("Invalid Client object");
                 }
 
-                var dbClient = _repoWrapper.Client.GetClientById(id);
-                if(dbClient.IsEmptyObject())
+                var dbClient = await _repoWrapper.Client.GetClientByIdAsync(id);
+                if (dbClient.IsEmptyObject())
                 {
                     _logger.LogError($"Client with id: {id}, has not been found in the database.");
                     return NotFound();
                 }
 
-                _repoWrapper.Client.UpdateClient(dbClient, client);
-                _repoWrapper.Save();
+                await _repoWrapper.Client.UpdateClientAsync(dbClient, client);
 
                 return NoContent();
             }
@@ -153,11 +152,11 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteClient(Guid id)
+        public async Task<IActionResult> DeleteClient(Guid id)
         {
             try
             {
-                var client = _repoWrapper.Client.GetClientById(id);
+                var client = await _repoWrapper.Client.GetClientByIdAsync(id);
                 if (client.IsEmptyObject())
                 {
                     _logger.LogError($"Client with id: {id}, has not been found in the database.");
@@ -170,8 +169,7 @@ namespace ValueTrack.API.Controllers
                     return BadRequest("Cannot delete client. It has related regions. Delete those regions first");
                 }
 
-                _repoWrapper.Client.DeleteClient(client);
-                _repoWrapper.Save();
+                await _repoWrapper.Client.DeleteClientAsync(client);
 
                 return NoContent();
             }
