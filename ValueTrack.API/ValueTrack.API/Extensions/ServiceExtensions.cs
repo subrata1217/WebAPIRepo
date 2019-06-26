@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Repository;
 using System.Net;
+using ValueTrack.API.CustomExceptionMiddleware;
 
 namespace ValueTrack.API.Extensions
 {
@@ -73,6 +74,10 @@ namespace ValueTrack.API.Extensions
                     }
                 });
             });
+        }
+        public static void ConfigureCustomExceptionMiddleware(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<ExceptionMiddleware>();
         }
     }
 }

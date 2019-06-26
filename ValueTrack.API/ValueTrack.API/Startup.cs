@@ -55,7 +55,8 @@ namespace ValueTrack.API
                 app.UseHsts();
             }
 
-            app.ConfigureExceptionHandler(logger);
+            //app.ConfigureExceptionHandler(logger);
+            app.ConfigureCustomExceptionMiddleware();
 
             app.UseHttpsRedirection();
 
