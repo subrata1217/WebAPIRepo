@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Entities.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using System.IO;
+using ValueTrack.API.ActionFilters;
 using ValueTrack.API.Extensions;
 
 namespace ValueTrack.API
@@ -33,6 +35,9 @@ namespace ValueTrack.API
             services.ConfigureSqlServerContext(Configuration);
 
             services.ConfigureRepositoryWrapper();
+
+            services.AddScoped<ValidationFilterAttribute>();
+            services.AddScoped<ValidateEntityExistsAttribute<Client>>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ValueTrack.API.ActionFilters;
 
 namespace ValueTrack.API.Controllers
 {
@@ -65,46 +66,30 @@ namespace ValueTrack.API.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateClient([FromBody]Client client)
         {
-            if (client.IsObjectNull())
-            {
-                _logger.LogError($"Client object sent from client is null");
-                return BadRequest("Client object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError($"Invalid Client object sent from client");
-                return BadRequest("Invalid Client object");
-            }
-
             await _repoWrapper.Client.CreateClientAsyc(client);
 
             return CreatedAtRoute("ClientById", new { client.Id }, client);
         }
 
         [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidateEntityExistsAttribute<Client>))]
         public async Task<IActionResult> UpdateClient(Guid id, [FromBody]Client client)
         {
-            if (client.IsObjectNull())
-            {
-                _logger.LogError($"Client object sent from client is null");
-                return BadRequest("Client object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError($"Invalid Client object sent from client");
-                return BadRequest("Invalid Client object");
-            }
-
+            // COMMENTED THE BELOW LOGIC BY ADDING THE ACTION FILTER (ValidateEntityExistsAttribute)
+            /*
             var dbClient = await _repoWrapper.Client.GetClientByIdAsync(id);
             if (dbClient.IsEmptyObject())
             {
                 _logger.LogError($"Client with id: {id}, has not been found in the database.");
                 return NotFound();
             }
+            */
+
+            var dbClient = HttpContext.Items["entity"] as Client;
 
             await _repoWrapper.Client.UpdateClientAsync(dbClient, client);
 
